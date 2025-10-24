@@ -28,10 +28,15 @@ const ChatSchema= new mongoose.Schema({
                 type:String,
                 required:true
             },
+            content:{
+                type:String,
+                required:true
+            },
             timestamp:{
                 type:String,
                 required:true
-            }
+            },
+            
         }
     ]
 },{timestamp:true}
