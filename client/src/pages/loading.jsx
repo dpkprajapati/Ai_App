@@ -12,7 +12,7 @@ const Loading  =()=>{
         const timeout = setTimeout(()=>{
             fetchUser()
             navigate("/")
-        },8000)
+        },4000)
         return ()=>clearTimeout(timeout)
     },[])
 

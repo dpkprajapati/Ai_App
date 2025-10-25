@@ -16,7 +16,7 @@ export const textMSGController= async(req, res)=>{
         const {chatId, prompt} = req.body
 
         const chat = await Chat.findOne({userId, _id:chatId})
-        chat.messages.push({role:"user", content:prompt, timestamps:Date.now(),
+        chat.messages.push({role:"user", content:prompt, timestamp:Date.now(),
         isImage:false})
 
         const {choices} = await openai.chat.completions.create({
@@ -30,12 +30,12 @@ export const textMSGController= async(req, res)=>{
             ],
         });
         
-        const reply = {...choices[0].message, timestamps: Date.now(), isImage: false}
+        const reply = {...choices[0].message, timestamp: Date.now(), isImage: false}
         // res.json({success: true, reply})
          // Push reply to chat messages
         chat.messages.push(reply)
 
-        // FIXED: Update the updatedAt timestamps
+        // FIXED: Update the updatedAt timestamp
         chat.updatedAt = Date.now()
 
         await chat.save() 
@@ -64,7 +64,7 @@ export const imageMSGController= async(req, res)=>{
         // push user message
         chat.messages.push({role:"user",
         content:prompt,
-        timestamps:Date.now(),
+        timestamp:Date.now(),
         isImage:false})
 
         // encode the prompt
@@ -104,7 +104,7 @@ export const imageMSGController= async(req, res)=>{
 
         const reply = {
             role: "assistant",
-            content: uploadResponse.url, timestamps: Date.now(), isImage: true,
+            content: uploadResponse.url, timestamp: Date.now(), isImage: true,
             isPublished
         }
 
@@ -128,3 +128,4 @@ export const imageMSGController= async(req, res)=>{
 
     }
 }
+

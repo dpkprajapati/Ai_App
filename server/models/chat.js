@@ -32,7 +32,7 @@ const ChatSchema= new mongoose.Schema({
                 type:String,
                 required:true
             },
-            timestamps:{
+            timestamp:{
                 type:String,
                 required:true
             },
