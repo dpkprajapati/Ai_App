@@ -69,7 +69,7 @@ const Sidebar  =({isMenuOpen, setIsMenuOpen})=>{
                                         {moment(chat.updatedAt).fromNow()}
                                     </p>
                                 </div>
-                                <img onClick={(e)=>{toast.promise(deleteChat(e,chat._id),{loading:"deleting..."})}} src={assets.bin_icon} className="hidden group-hover:block w-4 cursor-pointer not-dark:invert" alt="" />
+                                <img onClick={(e)=>{toast.promise(deleteChat(e,chat._id),{loading:"deleting..."})}} src={assets.bin_icon} className="block lg:hidden md:group-hover:block w-4 cursor-pointer not-dark:invert" alt="" />
 
                             </div>
                         ))
@@ -111,7 +111,7 @@ const Sidebar  =({isMenuOpen, setIsMenuOpen})=>{
                 <div className="flex intems-center gap-3 p-3 mt-3 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group" onClick={()=>{navigate("/")}}>
                     <img src={assets.user_icon} className="w-7 rounded-full"  alt="" />
                     <p className="flex-1 text-sm dark:text-primary truncate">{user? user.name:"login your account"}</p>
-                    {user && <img onClick={logout} src={assets.logout_icon} className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"/>}
+                    {user && <img onClick={logout} src={assets.logout_icon} className="h-5 cursor-pointer block lg:hidden md:group-hover:block not-dark:invert"/>}
                 </div>
                 <img onClick={()=>setIsMenuOpen(false)} src={assets.close_icon} alt="" className="absolute top-3 right-3 w-5 h-5 cursor-pointer md:hidden not-dark:invert"/>
         </div>
