@@ -54,7 +54,7 @@ export const purchasePlan= async (req,res)=>{
             credits: plan.credits,
             isPaid: false
         })
-        const origin = process.env.CLIENT_URL || req.headers.origin || "http://localhost:5173";
+        const origin = req.headers;
         const session = await stripe.checkout.sessions.create({
             line_items: [
                 {
