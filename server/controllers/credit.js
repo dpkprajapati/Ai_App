@@ -54,7 +54,7 @@ export const purchasePlan= async (req,res)=>{
             credits: plan.credits,
             isPaid: false
         })
-        const origin = req.headers;
+        const origin = req.headers.origin;
         const session = await stripe.checkout.sessions.create({
             line_items: [
                 {
