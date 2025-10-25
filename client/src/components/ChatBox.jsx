@@ -3,26 +3,58 @@ import { useAppContext } from "../context/AppContext";
 import { useState } from "react";
 import { assets } from "../assets/assets";
 import Message from "./Message";
+import toast from "react-hot-toast";
 
 
 const ChatBox  =()=>{
 
     const conatinerRef = useRef(null)
 
-    const {selectedChats, theme}=useAppContext()
+    const {selectedChats, fetchUserChats,theme, user, axios,token, setUser, isImage}=useAppContext()
 
     const [messages, setMessages]= useState([])
     const [loading,setLoading]=useState(false)
 
     const[prompt,setPrompt] = useState("")
-    const[mode,setMode] = useState("")
+    const[mode,setMode] = useState("text")
     const[isPublished,setIsPublished] = useState(false)
 
     const onSubmit=async(e)=>{
-        e.preventDefault()
+       
+        try{
+             e.preventDefault()
+             if(!user) return toast("Please login to send a message")
+                setLoading(true)    
+                const promptCopy= prompt;
+                setPrompt("")
+                setMessages(prev => [...prev, {role:"user", content: prompt, timestamps: new Date(), isImage:false}])
+                                       
+                const {data} = await axios.post(`/api/message/${mode}`,{chatId: selectedChats._id, prompt, isPublished}, {headers:{Authorization: token}})
+
+                if(data.success){
+                    setMessages(prev => [...prev, data.reply])
+
+                    // Refresh chats list to update timestamps
+                    await fetchUserChats()
+      
+                    // decrease credits
+                    if(mode === "image"){
+                        setUser(prev=> ({...prev, credits: prev.credits -2}))
+                    }else{
+                        setUser(prev=> ({...prev, credits: prev.credits -1}))
+                    }
+                }else{
+                    toast.error(data.message)
+                    setPrompt(promptCopy)
+                }
+        }catch(error){
+            toast.error(error.message)
+        }finally{
+           setPrompt("")
+           setLoading(false)
+        }
     }
     
-
     useEffect(()=>{
         if(selectedChats){
             setMessages(selectedChats.messages)
@@ -67,10 +99,10 @@ const ChatBox  =()=>{
             {
                 // it checks if mode is image then you have option to published it to the community
                 mode ==="image" && (
-                    <lable className="inline-flex flex-items-center gap-2 mb-3 text-sm mx-auto">
-                        <p className="text-xs">Publish generated image to Community</p>
+                    <label className="inline-flex flex-items-center gap-2 mb-3 text-sm mx-auto">
+                        <p className="text-xs bg-transparent">Publish generated image to Community</p>
                         <input type="checkbox" className="cursor-pointer" checked={isPublished} onChange={(e)=>{setIsPublished(e.target.checked)}}/>
-                    </lable>
+                    </label>
                 )
             }
              {/* prompt input box */}

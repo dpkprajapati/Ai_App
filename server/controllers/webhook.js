@@ -34,7 +34,7 @@ export const stripeWebhook =  async (req, res) => {
                     transaction.isPaid = true;
                     await transaction.save();
                 }else{
-                    return response.json({received: true, message:"Ignored event:invalid app id" });
+                    return res.json({received: true, message:"Ignored event:invalid app id" });
                 }
                 break;
             }
@@ -43,7 +43,7 @@ export const stripeWebhook =  async (req, res) => {
             console.log(`Unhandled event type: ${event.type}`);
             break;
         }
-        response.json({received: true });
+        res.json({received: true });
     }catch (error) {
         console.log("webhook processing error:",error.message);
         res.status(500).send(`Server Error: ${error.message}`);

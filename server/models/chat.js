@@ -32,14 +32,14 @@ const ChatSchema= new mongoose.Schema({
                 type:String,
                 required:true
             },
-            timestamp:{
+            timestamps:{
                 type:String,
                 required:true
             },
             
         }
     ]
-},{timestamp:true}
+},{timestamps:true}
 )
 
 const Chat = mongoose.model("Chat", ChatSchema)

@@ -5,7 +5,6 @@ import openai  from "../config/openai.js"
 import axios from "axios"
 
 //text-based  Ai chat message controller
-
 export const textMSGController= async(req, res)=>{
     try{
         const userId = req.user._id
@@ -17,7 +16,7 @@ export const textMSGController= async(req, res)=>{
         const {chatId, prompt} = req.body
 
         const chat = await Chat.findOne({userId, _id:chatId})
-        chat.messages.push({role:"user", content:prompt, timestamp:Date.now(),
+        chat.messages.push({role:"user", content:prompt, timestamps:Date.now(),
         isImage:false})
 
         const {choices} = await openai.chat.completions.create({
@@ -31,16 +30,20 @@ export const textMSGController= async(req, res)=>{
             ],
         });
         
-        const reply = {...choices[0].message, timestamp: Date.now(), isImage: false}
-        res.json({succes: true, reply})
+        const reply = {...choices[0].message, timestamps: Date.now(), isImage: false}
+        // res.json({success: true, reply})
+         // Push reply to chat messages
         chat.messages.push(reply)
+
+        // FIXED: Update the updatedAt timestamps
+        chat.updatedAt = Date.now()
 
         await chat.save() 
 
         await User.updateOne({_id : userId}, {$inc: {credits: -1}})
-
-       
+        res.json({success: true, reply})
     }catch(error){
+        
         res.json({success: false, message:error.message})
     }
 }
@@ -61,7 +64,7 @@ export const imageMSGController= async(req, res)=>{
         // push user message
         chat.messages.push({role:"user",
         content:prompt,
-        timestamp:Date.now(),
+        timestamps:Date.now(),
         isImage:false})
 
         // encode the prompt
@@ -70,9 +73,24 @@ export const imageMSGController= async(req, res)=>{
         // construct the imagekit ai generation url
         const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-genimg-prompt-${encodedPrompt}/${Date.now()}.png?tr=w-400,h-300,fo-auto`
 
-            // trigger generation by fetching from Imagekit
+        try{
+             // trigger generation by fetching from Imagekit
         const aiImageResponse = await axios.get(generatedImageUrl,{responseType : "arraybuffer"})
 
+        }catch (axiosError) {
+            // Check if the error is an HTTP error response (like 403)
+            if (axiosError.response) {
+                 // --- CUSTOM ERROR MESSAGE FOR SERVICE ISSUE ---
+                 return res.json({
+                    success: false,
+                    message: "Image generation failed: The mode is not functional due to service provider issue or quota restrictions. Please try again later..."
+                 });
+                 // --- END CUSTOM ERROR MESSAGE ---
+            }
+            // Re-throw if it's not a known network/HTTP error
+            throw axiosError; 
+        }
+           
         // covert to base-64 
         const base64Image = `data:image/png;base64,${Buffer.from(aiImageResponse.data,"binary").toString("base64")}`
 
@@ -86,17 +104,23 @@ export const imageMSGController= async(req, res)=>{
 
         const reply = {
             role: "assistant",
-            content: uploadResponse.url, timestamp: Date.now(), isImage: true,
+            content: uploadResponse.url, timestamps: Date.now(), isImage: true,
             isPublished
         }
-            
-            res.json({success: true, reply})
+
+            // Push reply to chat messages FIRST
             chat.messages.push(reply)
-
+            
+            // Update the updatedAt timestamp
+            chat.updatedAt = Date.now()
+            
+            // Save to database BEFORE sending response
             await chat.save()
-
-            // deduct 2 credits from user account
+            
+            // Deduct 2 credits from user account
             await User.updateOne({_id : userId}, {$inc: {credits: -2}})
+
+            res.json({success: true, reply})
 
 
     }catch( error){

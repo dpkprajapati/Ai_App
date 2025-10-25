@@ -2,6 +2,8 @@ import React from "react";
 import {useState,useEffect} from "react"
 import Loading from "./loading";
 import { dummyPlans} from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 
 
@@ -9,10 +11,43 @@ const Credits =()=>{
 
     const [plans, setPlans] = useState([])
     const [loading, setLoading]= useState(true)
+    const {token, axios} = useAppContext()
   
     const fetchPlans =  async () => {
-        setPlans(dummyPlans)
-        setLoading(false)
+       try{
+        const {data} = await axios.get("/api/credit/plans",{
+            headers:{Authorization:token}
+        })
+        if(data.success){
+            setPlans(data.plans)
+        }else{
+            toast.error(data.message || "Failed to fetch plans")
+        }
+
+       }catch(error){
+        toast.error(error.message || "An error occurred while fetching plans")
+       }
+       setLoading(false)
+    }
+
+    const purchasePlan = async(planId)=>{
+        // Logic to handle plan purchase
+        try{
+            const {data} = await axios.post("/api/credit/purchase",{
+                planId},{headers:{Authorization:token}
+            })
+            if(data.success){
+                window.location.href = data.url
+            }
+            else{
+                toast.error(data.message || "Failed to purchase the plan")
+            }
+        }catch(error){
+            toast.error(error.message || "An error occurred while purchasing the plan")
+        }
+
+
+
     }
 
     useEffect(()=>{
@@ -41,7 +76,7 @@ const Credits =()=>{
                             ))}
                         </ul>
                     </div>
-                    <button className="mt-6 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-medium py-2 rounded transition-colors cursor-pointer">Buy Now</button>
+                    <button onClick={()=>{toast.promise(purchasePlan(plan._id),{loading:"Processing"})}} className="mt-6 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-medium py-2 rounded transition-colors cursor-pointer">Buy Now</button>
                 </div>
                ))}
             </div>

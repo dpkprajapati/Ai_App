@@ -2,15 +2,28 @@ import { useEffect } from "react";
  import { useState } from "react";
 import { dummyPublishedImages } from "../assets/assets";
 import Loading from "./loading";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 
 const Community =()=>{
 
     const [images, setImages]= useState([])
     const [loading, setLoading]= useState(true)
+    const {axios} = useAppContext() 
 
     const fetchImages = async()=>{
-        setImages(dummyPublishedImages)
+        try{
+            const {data} = await axios.get("api/user/published-images")
+            if(data.success){
+                setImages(data.images)
+            }else{
+                toast.error(data.message || "Failed to fetch images")
+            }
+        }catch(error){
+            console.error("Error fetching images:", error)
+            toast.error(error.message || "An error occurred while fetching images")
+        }
         setLoading(false)
     }
 
