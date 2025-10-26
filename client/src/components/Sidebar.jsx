@@ -8,8 +8,6 @@ const Sidebar  =({isMenuOpen, setIsMenuOpen})=>{
     
     const {chats, setChats, setSelectedChats, theme , setTheme, user, navigate, createNewChat, axios, fetchUserChats,token , setToken}= useAppContext();
 
-    console.log("DEBUG chats:", chats);
-
     const logout=()=>{
         localStorage.removeItem("token");
         setToken(null);
