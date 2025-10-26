@@ -51,7 +51,7 @@ const Sidebar  =({isMenuOpen, setIsMenuOpen})=>{
             {/* search conversation */}
             <div className="flex items-center gap-2 p-3 mt-4 border border-gray-400 dark:border-white/20 rounded-md">
                 <img src={assets.search_icon} className="w-4 not-dark:invert" alt="" />
-                <input onChange={(e)=>setSearch(e.target.value)} value={search} type="text" placeholder="Ask anything" className="text-xs placeholder:text-gray-400 outline-none"/>
+                <input onChange={(e)=>setSearch(e.target.value)} value={search} type="text" placeholder="Search recent chats" className="text-xs placeholder:text-gray-400 outline-none"/>
                 
             </div>
             {/* recent chats  */}
